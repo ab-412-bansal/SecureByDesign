@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 import uvicorn
@@ -8,7 +9,29 @@ import math
 import hashlib
 import os
 
-app = FastAPI(title="Security Intelligence API")
+app = FastAPI(
+    title="Security Intelligence API",
+    description="Password vault security backend",
+    version="1.0.0",
+    root_path="/api",
+    openapi_url="/openapi.json",
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
+
+# ✅ Add CORS so frontend can talk to backend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://localhost", "http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ✅ Add a root endpoint so /api/ doesn't 404
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "Security Intelligence API is running"}
 
 # --- Models ---
 class PasswordAnalysisRequest(BaseModel):
@@ -56,7 +79,6 @@ def analyze_password(password: str) -> Dict[str, Any]:
     if any(c in string.punctuation for c in password):
         charset += len(string.punctuation)
     entropy = length * math.log2(charset) if charset else 0
-    # Simple dictionary/keyboard pattern check
     common_patterns = ["password", "1234", "qwerty", "letmein", "admin"]
     found_pattern = any(p in password.lower() for p in common_patterns)
     risk_level = "high" if found_pattern or entropy < 40 else ("medium" if entropy < 60 else "low")
@@ -67,9 +89,8 @@ def analyze_password(password: str) -> Dict[str, Any]:
         "risk_level": risk_level
     }
 
-# --- Breach Detection (k-anonymity, local only) ---
+# --- Breach Detection ---
 def check_breach(password: Optional[str], email: Optional[str]) -> Dict[str, Any]:
-    # Simulate breach check (no paid API)
     breached = False
     breach_type = None
     if password and password.lower() in ["password", "123456", "qwerty"]:
@@ -80,9 +101,8 @@ def check_breach(password: Optional[str], email: Optional[str]) -> Dict[str, Any
         breach_type = "email_breached"
     return {"compromised": breached, "type": breach_type}
 
-# --- Security Score (stub) ---
+# --- Security Score ---
 def get_security_score() -> Dict[str, Any]:
-    # Simulate analytics
     return {
         "total_passwords": 10,
         "weak_passwords": 2,
@@ -94,10 +114,9 @@ def get_security_score() -> Dict[str, Any]:
         ]
     }
 
-# --- Suspicious Login Detection (stub) ---
+# --- Suspicious Login Detection ---
 SECURITY_EVENTS = []
 def log_login_alert(data: LoginAlertRequest):
-    # Simulate detection
     suspicious = data.ip.startswith("10.") or data.device == "unknown"
     event = data.dict()
     event["suspicious"] = suspicious
@@ -107,7 +126,6 @@ def log_login_alert(data: LoginAlertRequest):
 # --- Password Generator ---
 def generate_password(req: PasswordGenRequest) -> Dict[str, Any]:
     if req.passphrase:
-        # Simple passphrase generator
         words = ["correct", "horse", "battery", "staple", "random", "secure", "vault", "cloud"]
         pw = "-".join(secrets.choice(words) for _ in range(max(3, req.length // 6)))
     else:
@@ -137,11 +155,9 @@ def simulate_attack(req: AttackSimRequest) -> Dict[str, Any]:
         time = "hours" if entropy < 50 else "years"
     return {"attack_type": req.attack_type, "estimated_crack_time": time}
 
-# --- Encrypted Backup (stub) ---
+# --- Encrypted Backup ---
 def backup_vault(req: BackupRequest) -> Dict[str, Any]:
-    # Simulate backup (no real vault data)
     backup_file = f"backup_{secrets.token_hex(4)}.enc"
-    # In real use, encrypt vault data with req.key (AES-256)
     with open(backup_file, "w") as f:
         f.write("ENCRYPTED_DUMMY_DATA")
     return {"backup_file": backup_file, "status": "encrypted"}

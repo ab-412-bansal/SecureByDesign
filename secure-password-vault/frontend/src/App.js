@@ -1,5 +1,5 @@
 import React from "react";
-import SecurityDashboard from "../components/SecurityDashboard";
+import SecurityDashboard from "./components/SecurityDashboard";
 
 function App() {
   return (

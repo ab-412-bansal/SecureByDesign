@@ -2,20 +2,17 @@ version: '3.8'
 services:
   vaultwarden:
     image: vaultwarden/server:latest
-    ports:
-      - "8080:80"
+    # No direct ports — nginx handles HTTPS
     volumes:
       - ./vaultwarden/vw-data:/data
     environment:
       - ADMIN_TOKEN=changeme_admin_token
       - SIGNUPS_ALLOWED=true
-      - DOMAIN=http://localhost:8080
+      - DOMAIN=https://localhost:9443   # ✅ HTTPS via nginx
     restart: unless-stopped
 
   backend:
     build: ./backend
-    ports:
-      - "8000:8000"
     volumes:
       - ./backend:/app
     restart: unless-stopped
@@ -34,11 +31,15 @@ services:
     image: nginx:alpine
     ports:
       - "80:80"
+      - "443:443"
+      - "9443:9443"       # ✅ Vaultwarden HTTPS port
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
     depends_on:
       - vaultwarden
       - backend
+      - frontend
     restart: unless-stopped
 
   frontend:
@@ -47,8 +48,6 @@ services:
     volumes:
       - ./frontend:/app
     command: sh -c "npm install && npm run start"
-    ports:
-      - "3000:3000"
     restart: unless-stopped
 
 volumes:
