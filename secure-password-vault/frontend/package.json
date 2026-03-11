@@ -1,0 +1,16 @@
+{
+  "name": "secure-password-vault-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "npx serve -s dashboard -l 3000"
+  },
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "recharts": "^2.6.2"
+  },
+  "devDependencies": {
+    "serve": "^14.2.0"
+  }
+}

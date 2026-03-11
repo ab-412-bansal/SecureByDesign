@@ -1,0 +1,55 @@
+version: '3.8'
+services:
+  vaultwarden:
+    image: vaultwarden/server:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./vaultwarden/vw-data:/data
+    environment:
+      - ADMIN_TOKEN=changeme_admin_token
+      - SIGNUPS_ALLOWED=true
+      - DOMAIN=http://localhost:8080
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: vaultuser
+      POSTGRES_PASSWORD: vaultpass
+      POSTGRES_DB: vaultdb
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - vaultwarden
+      - backend
+    restart: unless-stopped
+
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    command: sh -c "npm install && npm run start"
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+volumes:
+  db-data:
