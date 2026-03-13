@@ -15,11 +15,11 @@ backend/
     password_strength.py
     attack_simulator.py
     backup_manager.py
+    DockerFile
 
 frontend/
-    dashboard/
-    components/
-    charts/
+    public/
+    src/
 
 vaultwarden/
     docker-compose.yml
