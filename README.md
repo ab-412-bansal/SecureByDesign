@@ -1,69 +1,72 @@
 
 # SecureByDesign
 
-SecureByDesign is a local demonstration project combining Vaultwarden with a React dashboard and a FastAPI security-analysis API. It is intended for learning and demonstration, not production password management.
+**One place to manage your logins and important account details, with security analysis built around the vault.**
 
-## What Works
+SecureByDesign brings a self-hosted Vaultwarden password vault together with a security dashboard. Store and organize login items in the vault, then review password risks, reuse, and security findings in one workflow. The project is designed to demonstrate how password management and practical security insights can work side by side.
 
-- Vaultwarden provides the encrypted password-vault service.
-- The dashboard can log in to Vaultwarden and analyze decrypted vault login items.
-- Password strength estimates and vault reuse analysis are available through the backend.
-- The breach check compares passwords to a small bundled list of common passwords; it does not query a breach service or a full breach corpus.
-- Password generation uses Python's `secrets` module.
-- Login-alert and attack-estimate endpoints are demonstrations; the attack simulator does not perform cracking attempts.
-- Nginx provides local HTTPS routing using a self-signed certificate.
+## Explore the Dashboard
 
-## Important Limitations
+- **Overview:** See the vault security score and counts for weak, breached, and reused login passwords.
+- **Security Report:** Review individual login items, strength estimates, detected issues, and password details.
+- **Tools:** Analyze a password, generate a strong password, and compare estimated attack scenarios.
+- **Vault access:** Sign in with your Vaultwarden account; the dashboard syncs the encrypted vault and prepares login items for analysis.
 
-- Vault analysis sends decrypted password values from the browser to the FastAPI backend. Do not use real or sensitive vault credentials with this demo.
-- Login events are stored in memory and disappear when the backend restarts.
-- Vaultwarden stores its data in local SQLite files under `secure-password-vault/vaultwarden/vw-data/`. PostgreSQL is included in Compose but the backend does not currently use it; analytics are not persisted.
-- `/api/backup-vault` returns HTTP 501. Encrypted backup and restore are not implemented.
-- The security score is a simple demonstration metric, not a validated risk rating.
-- Local TLS certificates are self-signed. This setup is not production-ready or intended to be exposed to the internet.
+## Security Analysis Tools
 
-## Start Locally
+- **Password strength:** Entropy estimate, length and character-class checks, common-pattern warnings, risk level, and estimated crack time.
+- **Reuse analysis:** Detect identical passwords used by multiple login items in the analyzed vault.
+- **Breach-list check:** Compare passwords against the bundled demo list of commonly exposed passwords.
+- **Password generator:** Generate random passwords or memorable passphrases.
+- **Attack estimator:** Compare dictionary, rule-based, mask, brute-force, offline-hash, online-rate-limited, and credential-stuffing exposure scenarios. It estimates; it does not run attacks.
+- **Login alert demo:** Submit a sample login event and see the suspicious-login heuristic in action.
 
-See [the setup guide](secure-password-vault/docs/setup_guide.md). In brief, create local TLS certificate files under `secure-password-vault/nginx/certs/`, then run from the project directory:
+## How It Fits Together
 
-```bash
+```text
+Browser dashboard ── HTTPS ── Nginx ── React UI
+		├─────── FastAPI analysis API
+		└─────── Vaultwarden ── local SQLite vault
+```
+
+Docker Compose runs Vaultwarden, the React dashboard, FastAPI, PostgreSQL, and Nginx. Vaultwarden owns and persists vault data; the dashboard and API provide the analysis experience.
+
+## Run Locally
+
+Requirements: Docker Desktop with Linux containers, Docker Compose v2, and local TLS certificate files. See the [setup guide](secure-password-vault/docs/setup_guide.md) for the full steps.
+
+From `secure-password-vault/`, start the stack:
+
+```powershell
 docker compose up --build -d
 ```
 
-Access:
+Open:
 
-- Dashboard: <https://localhost/>
-- Vaultwarden: <https://localhost:9443/>
-- API documentation: <https://localhost/api/docs>
+- **Dashboard:** <https://localhost/>
+- **Vaultwarden:** <https://localhost:9443/>
+- **Vaultwarden admin:** <https://localhost:9443/admin> (demo token: `changeme_admin_token`)
+- **API explorer:** <https://localhost/api/docs>
 
-The Vaultwarden admin page is at <https://localhost:9443/admin>; the local demo token defaults to `changeme_admin_token`. Set `ADMIN_TOKEN` in the ignored `.env` file to override it. Do not expose this default publicly. Accept the browser warning for the self-signed certificate. See [the setup guide](secure-password-vault/docs/setup_guide.md), [API guide](secure-password-vault/docs/api.md), [architecture](secure-password-vault/docs/architecture.md), and [threat model](secure-password-vault/docs/threat_model.md) for details.
+The local HTTPS certificate is self-signed, so your browser will show a development-certificate warning.
 
-## Run Tests and Checks
+## Project Checks
 
-Install the backend test dependencies, then run the appropriate verification script from the project directory.
-
-PowerShell on Windows:
+From a PowerShell terminal in `secure-password-vault/`:
 
 ```powershell
-cd C:\SecureByDesign\secure-password-vault
 python -m pip install -r backend/requirements-test.txt
 .\scripts\test.ps1
 ```
 
-Bash on Linux/macOS (or WSL with Python installed in WSL):
+The test runner executes the backend tests, frontend build and production-dependency audit, Compose validation, and shell syntax checks.
 
-```bash
-cd secure-password-vault
-python3 -m pip install -r backend/requirements-test.txt
-bash scripts/test.sh
-```
+## Project Guides
 
-Both scripts run backend pytest tests, install the locked frontend dependencies, audit production npm dependencies, build the frontend, validate Docker Compose, and syntax-check the shell scripts. They do not need live Vaultwarden credentials.
+- [Setup and access](secure-password-vault/docs/setup_guide.md)
+- [API endpoints](secure-password-vault/docs/api.md)
+- [Architecture](secure-password-vault/docs/architecture.md)
+- [Security model](secure-password-vault/docs/security_model.md)
+- [Threat model](secure-password-vault/docs/threat_model.md)
 
-## Repository Layout
-
-- Project source and Compose configuration: [secure-password-vault/](secure-password-vault/)
-- Documentation: [secure-password-vault/docs/](secure-password-vault/docs/)
-- Workspace ignore rules: [`.gitignore`](.gitignore)
-
-No project license file is currently included. Review dependency and upstream licenses before redistribution.
+> **Demo use:** The bundled breach list and login alerts are local demo features, attack results are estimates, and vault analysis sends decrypted login fields to the analysis API. Use a disposable vault and test credentials, not real account passwords. Backup/restore is not implemented yet.
