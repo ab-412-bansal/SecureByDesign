@@ -1,52 +1,31 @@
 # Architecture Overview
 
-## System Architecture Diagram
+## System Architecture
 
-```
-Client Layer
-(Web UI + Bitwarden Browser Extension)
-
-↓
-
-Reverse Proxy
-(Nginx)
-
-↓
-
-Vaultwarden Server
-(Password Vault Core)
-
-↓
-
-Security Intelligence Layer
-(Custom Modules)
-    ├─ Password Strength Analyzer
-    ├─ Breach Detection System
-    ├─ Suspicious Login Detection
-    ├─ Security Analytics Dashboard
-    ├─ Password Generator
-    ├─ Attack Simulation Engine
-    └─ Encrypted Backup Manager
-
-↓
-
-Database Layer
-(SQLite or PostgreSQL)
+```mermaid
+flowchart TD
+    Browser[Browser dashboard or Bitwarden-compatible client] --> Nginx[Nginx TLS proxy]
+    Nginx --> Frontend[React dashboard]
+    Nginx --> API[FastAPI]
+    Nginx --> Vault[Vaultwarden]
+    API --> Vault
+    Vault --> SQLite[(Vaultwarden SQLite bind mount)]
+    API -. not currently connected .-> Postgres[(PostgreSQL Compose service)]
 ```
 
 ## Components
-- **Vaultwarden**: Core password vault (Bitwarden-compatible)
-- **Nginx**: Reverse proxy for secure routing
-- **FastAPI Backend**: Security analytics and intelligence API
-- **Frontend Dashboard**: Security analytics UI
-- **Database**: Stores vault and analytics data
+- **Vaultwarden**: Bitwarden-compatible vault. Its data is mounted from `vaultwarden/vw-data/` and stored in SQLite.
+- **Nginx**: Local TLS reverse proxy. Port 443 serves the dashboard/API; port 9443 serves Vaultwarden.
+- **FastAPI**: Feature routers for auth proxying, analysis, breach-list checks, login alerts, generation, and attack estimates.
+- **React dashboard**: Logs in through the API, retrieves encrypted vault items, decrypts in the browser, then submits decrypted login fields for analysis.
+- **PostgreSQL**: Included as a service but not connected to the backend; login-alert events remain in process memory.
 
 ## Data Flow
-1. User interacts with Web UI or Bitwarden extension
-2. Requests routed via Nginx to Vaultwarden and Security API
-3. Security modules analyze, monitor, and log events
-4. Analytics and alerts shown in dashboard
+1. Browser requests enter through Nginx.
+2. Vaultwarden login and vault storage use the Vaultwarden service.
+3. Dashboard vault analysis decrypts items in the browser and sends the selected decrypted fields to FastAPI.
+4. Login-alert events are currently kept in process memory; no analytics persistence is configured.
 
 ---
 
-See [security_model.md](security_model.md) for security details.
+This is a local demonstration architecture, not a production deployment. See [security_model.md](security_model.md) for limitations.

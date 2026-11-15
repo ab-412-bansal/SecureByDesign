@@ -1,4 +1,7 @@
 #!/bin/bash
 # Stop all containers
-cd "$(dirname "$0")/.."
-docker-compose down
+set -e
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$PROJECT_DIR"
+docker compose down

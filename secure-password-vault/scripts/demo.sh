@@ -2,15 +2,34 @@
 # Demo workflow for Secure Password Vault Platform
 set -e
 
-cd "$(dirname "$0")/.."
-echo "1. Registering user via Vaultwarden UI..."
-echo "2. Storing password..."
-echo "3. Analyzing password strength via backend API..."
-curl -X POST http://localhost/api/analyze-password -H "Content-Type: application/json" -d '{"password": "password123"}'
-echo "4. Checking breach status..."
-curl -X POST http://localhost/api/check-breach -H "Content-Type: application/json" -d '{"password": "password123"}'
-echo "5. Simulating suspicious login..."
-curl -X POST http://localhost/api/login-alert -H "Content-Type: application/json" -d '{"user_id": "1", "ip": "10.0.0.5", "device": "unknown", "time": "2026-03-11T11:00:00"}'
-echo "6. Fetching updated security dashboard..."
-curl http://localhost/api/security-score
-echo "--- Demo complete ---"
+BASE_URL="${BASE_URL:-https://localhost}"
+CURL=(curl --insecure --fail --silent --show-error)
+
+echo "Backend health:"
+"${CURL[@]}" "$BASE_URL/api/"
+echo
+
+echo "Password strength analysis:"
+"${CURL[@]}" -X POST "$BASE_URL/api/analyze-password" \
+	-H "Content-Type: application/json" -d '{"password":"password123"}'
+echo
+
+echo "Local common-password breach check:"
+"${CURL[@]}" -X POST "$BASE_URL/api/check-breach" \
+	-H "Content-Type: application/json" -d '{"password":"password123"}'
+echo
+
+echo "Suspicious login detection:"
+"${CURL[@]}" -X POST "$BASE_URL/api/login-alert" \
+	-H "Content-Type: application/json" \
+	-d "{\"user_id\":\"demo\",\"ip\":\"10.0.0.5\",\"device\":\"unknown\",\"time\":\"$(date -Iseconds)\"}"
+echo
+
+echo "Password generation:"
+"${CURL[@]}" -X POST "$BASE_URL/api/generate-password" \
+	-H "Content-Type: application/json" -d '{"length":20}'
+echo
+
+echo "Demo checks completed. Dashboard: $BASE_URL/"
+echo "Vaultwarden: https://localhost:9443/"
+echo "Security score requires a Vaultwarden bearer token; log in through the dashboard first."

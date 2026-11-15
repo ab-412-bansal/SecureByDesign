@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   vaultwarden:
     image: vaultwarden/server:latest
@@ -6,13 +5,15 @@ services:
     volumes:
       - ./vaultwarden/vw-data:/data
     environment:
-      - ADMIN_TOKEN=changeme_admin_token
-      - SIGNUPS_ALLOWED=true
-      - DOMAIN=https://localhost:9443   # ✅ HTTPS via nginx
+      ADMIN_TOKEN: ${ADMIN_TOKEN-changeme_admin_token}
+      SIGNUPS_ALLOWED: "true"
+      DOMAIN: https://localhost:9443
     restart: unless-stopped
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      network: host
     volumes:
       - ./backend:/app
     environment:
