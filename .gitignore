@@ -1,5 +1,6 @@
 # dependencies
 node_modules/
+secure-password-vault/frontend/node_modules/
 
 # logs
 logs
@@ -8,6 +9,80 @@ npm-debug.log*
 
 # environment variables
 .env
+.env.*
+!.env.example
+!.env.*.example
+
+# credentials, private keys, and locally generated TLS certificates
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+*.secret
+secure-password-vault/nginx/certs/*
+!secure-password-vault/nginx/certs/.gitkeep
+secure-password-vault/secrets/
+
+# Vaultwarden runtime data (keep the explanatory README only)
+secure-password-vault/vaultwarden/vw-data/*
+!secure-password-vault/vaultwarden/vw-data/README.md
+!secure-password-vault/vaultwarden/vw-data/.gitkeep
+
+# Local databases and database journals
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-shm
+*.db-wal
+
+# Backups and generated encrypted archives
+*.bak
+*.backup
+*.enc
+secure-password-vault/backups/
+secure-password-vault/vault-backups/
+
+# Python virtual environments, caches, and test artifacts
+.venv/
+venv/
+env/
+.tox/
+.nox/
+.eggs/
+*.egg-info/
+pip-wheel-metadata/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+junit*.xml
+test-results/
+playwright-report/
+blob-report/
+
+# Frontend build output and local package-manager state
+secure-password-vault/frontend/dist/
+secure-password-vault/frontend/build/
+.npm/
+
+# Local Docker overrides
+secure-password-vault/docker-compose.override.yml
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
 
 # build output
 dist/

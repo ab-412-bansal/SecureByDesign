@@ -1,4 +1,6 @@
 #!/bin/bash
 # Build and run all containers for Secure Password Vault Platform
-cd "$(dirname "$0")/.."
-docker-compose up --build -d
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+exec bash "$SCRIPT_DIR/full_setup.sh"

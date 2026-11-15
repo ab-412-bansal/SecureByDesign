@@ -1,8 +1,6 @@
 # Test Data for Demo
 
-## Users
-- alice@example.com
-- bob@example.com
+These are examples only. Use a disposable account and never reuse real credentials.
 
 ## Passwords
 - password123 (weak, breached)
@@ -15,4 +13,4 @@
 
 ---
 
-Use these for demo and testing.
+The `/check-breach` endpoint recognizes some common passwords from a bundled local list. It does not query real breach services. Login alert examples trigger a simple demo heuristic, not geolocation or device fingerprint analysis.

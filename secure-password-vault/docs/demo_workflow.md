@@ -1,18 +1,14 @@
 # Demo Workflow Script
 
-1. **User registers**
-   - Register via Vaultwarden web UI or Bitwarden extension
-2. **Password stored**
-   - Add a new password entry
-3. **Password strength analyzed**
-   - Backend analyzes password via `/analyze-password` endpoint
-4. **Breach scan performed**
-   - Backend checks password/email via `/check-breach`
-5. **Suspicious login detected**
-   - Login from new device/IP triggers `/login-alert` and logs event
-6. **Security dashboard updated**
-   - Dashboard displays updated analytics and alerts
+1. Start the stack and open `https://localhost:9443/`; create a **disposable test account**.
+2. Add test-only login items in Vaultwarden.
+3. Open `https://localhost/`, sign in with the test account, and inspect the analysis report.
+4. Submit test strings to `/api/analyze-password` and `/api/check-breach` in the API docs. The breach route only checks a small local common-password list.
+5. Submit a test event to `/api/login-alert` using IP `10.0.0.5` or device `unknown` to trigger its demo heuristic.
+6. Run `bash scripts/demo.sh` for API health, analysis, breach-list, login-alert, and password-generator examples.
+
+The demo script does not register users, modify the vault, fetch authenticated security scores, or demonstrate backups. Vault analysis sends decrypted item fields to the backend; do not use real credentials.
 
 ---
 
-*Run all services via Docker Compose. See [setup_guide.md](setup_guide.md) for details.*
+See [setup_guide.md](setup_guide.md) for startup instructions. Backup/restore is not implemented.

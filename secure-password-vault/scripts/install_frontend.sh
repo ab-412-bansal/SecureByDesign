@@ -1,4 +1,4 @@
 #!/bin/bash
-# Install frontend dependencies and build dashboard
+# Install frontend dependencies
 cd "$(dirname "$0")/../frontend"
 npm install
