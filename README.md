@@ -68,5 +68,6 @@ The test runner executes the backend tests, frontend build and production-depend
 - [Architecture](secure-password-vault/docs/architecture.md)
 - [Security model](secure-password-vault/docs/security_model.md)
 - [Threat model](secure-password-vault/docs/threat_model.md)
+- [AI-assisted development and contributions](secure-password-vault/docs/ai_assisted_development.md)
 
 > **Demo use:** The bundled breach list and login alerts are local demo features, attack results are estimates, and vault analysis sends decrypted login fields to the analysis API. Use a disposable vault and test credentials, not real account passwords. Backup/restore is not implemented yet.

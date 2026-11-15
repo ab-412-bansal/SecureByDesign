@@ -57,6 +57,7 @@ SecureByDesign/
             repo_structure.md
             test_data.md
             threat_model.md
+            ai_assisted_development.md
 ```
 
 ---
